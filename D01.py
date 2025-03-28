@@ -24,15 +24,20 @@ def get_lat_lon(postal_code):
         return float(lat), float(lon)
     return None, None
 
-# Function to load a sheet and process it
 def load_sheet(sheet_name):
-    df = pd.read_excel(excel_file, sheet_name=sheet_name)
+    if sheet_name == "Overview":
+        dfs = [pd.read_excel(excel_file, sheet_name=s) for s in sheet_names]
+        df = pd.concat(dfs, ignore_index=True)  # Merge all sheets
+    else:
+        df = pd.read_excel(excel_file, sheet_name=sheet_name)
     
-    # Convert "Event Date" column to datetime format
     df["Event Date"] = pd.to_datetime(df["Event Date"], errors='coerce')
+
+    if "Postal Code" in df.columns:
+        df["Latitude"], df["Longitude"] = zip(*df["Postal Code"].apply(get_lat_lon))
     
-    df["Latitude"], df["Longitude"] = zip(*df["Postal Code"].apply(get_lat_lon))
     return df
+
 
 # Initialize Dash app with Bootstrap
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
@@ -62,10 +67,11 @@ app.layout = dbc.Container([
         dbc.Col(html.Label("Select Data Sheet:"), width=3, className="text-right"),
         dbc.Col(dcc.Dropdown(
             id="sheet-selector",
-            options=[{"label": sheet, "value": sheet} for sheet in sheet_names],
-            value=sheet_names[0],
+            options=[{"label": "Overview", "value": "Overview"}] + [{"label": sheet, "value": sheet} for sheet in sheet_names],
+            value="Overview",  # Set default to Overview
             clearable=False
-        ), width=6)
+    ), width=6)
+
     ], className="mb-4 justify-content-center"),
 
     # Date Filter
