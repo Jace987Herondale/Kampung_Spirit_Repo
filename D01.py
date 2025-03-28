@@ -167,7 +167,7 @@ def update_dashboard(sheet_name, start_date, end_date):
 
     # Update graphs
     age_fig = px.histogram(df, x="Age", nbins=10, title="Age Distribution")
-    gender_fig = px.pie(df, x="Gender", title="Gender Distribution")
+    gender_fig = px.pie(df, names="Gender", title="Gender Distribution")
     race_fig = px.pie(df, names="Race", title="Racial Distribution")
     neighbors_fig = px.histogram(df, x="How many new neighbours met?", nbins=10, title="New Neighbors Met")
     better_know_fig = px.histogram(df, x="How much better do you know your neighbours?", nbins=5, title="Better Knowledge of Neighbors")
